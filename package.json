@@ -10,6 +10,11 @@
     "type": "git",
     "url": "git+https://github.com/pk4media/cloudwatch-rollup.git"
   },
+  "keywords": [
+    "aws",
+    "cloudwatch",
+    "metrics"
+  ],
   "author": "David Negstad <https://github.com/dnegstad> (davidn@pk4media.com)",
   "license": "MIT",
   "bugs": {
