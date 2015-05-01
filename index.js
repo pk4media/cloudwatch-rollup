@@ -3,8 +3,10 @@
 var AWS = require('aws-sdk');
 var HashMap = require('object-key-map');
 
-function CloudWatchAggregation(config) {
+function CloudWatchAggregation(config, options) {
   this._cloudWatch = new AWS.CloudWatch(config);
+
+  this.options = options || {};
 
   this._aggregations = {};
 }
@@ -41,25 +43,32 @@ CloudWatchAggregation.prototype.push = function(name, dimensions, value, options
   metric.StatisticValues.SampleCount++;
   metric.StatisticValues.Minimum = Math.min(value, metric.StatisticValues.Minimum);
   metric.StatisticValues.Maximum = Math.max(value, metric.StatisticValues.Maximum);
+
+  this._aggregations[name].set(dimensions, metric);
 };
 
 CloudWatchAggregation.prototype.flush = function() {
-  var that = this;
+  var metrics = [];
 
   var metricName;
-  for (metricName in that._aggregations) {
-    that._aggregations[metricName].forEach(putMetricData);
+  for (metricName in this._aggregations) {
+    metrics = metrics.concat(this._aggregations[metricName].values());
   }
 
-  that._aggregations = {};
-
-  function putMetricData(dimensions, metric) {
-    that._cloudWatch.putMetricData(metric, function(err, data) {
-      if (err) {
-        throw err;
-      }
-    });
+  if (metrics.length < 1) {
+    return;
   }
+
+  this._aggregations = {};
+
+  this._cloudWatch.putMetricData({
+    Namespace: this.options.namespace || '',
+    MetricData: metrics
+  }, function(err, data) {
+    if (err) {
+      throw err;
+    }
+  });
 };
 
 CloudWatchAggregation.prototype.start = function(interval) {
@@ -83,6 +92,6 @@ CloudWatchAggregation.prototype.stop = function() {
   }
 };
 
-module.exports = function(config) {
-  return new CloudWatchAggregation(config);
+module.exports = function(config, options) {
+  return new CloudWatchAggregation(config, options);
 };

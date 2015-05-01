@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/pk4media/cloudwatch-rollup#readme",
   "dependencies": {
-    "object-key-map": "^1.0.0"
+    "aws-sdk": "^2.1.26",
+    "object-key-map": "^1.0.1"
   }
 }
