@@ -1,0 +1,22 @@
+{
+  "name": "cloudwatch-rollup",
+  "version": "1.0.0",
+  "description": "CloudWatch custom metric aggregation",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pk4media/cloudwatch-rollup.git"
+  },
+  "author": "David Negstad <https://github.com/dnegstad> (davidn@pk4media.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pk4media/cloudwatch-rollup/issues"
+  },
+  "homepage": "https://github.com/pk4media/cloudwatch-rollup#readme",
+  "dependencies": {
+    "object-key-map": "^1.0.0"
+  }
+}
