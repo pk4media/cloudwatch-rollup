@@ -7,6 +7,7 @@ function CloudWatchAggregation(config, options) {
   this._cloudWatch = new AWS.CloudWatch(config);
 
   this.options = options || {};
+  this.options.batchCount = this.options.batchCount || 20;
 
   this._aggregations = {};
 }
@@ -49,26 +50,30 @@ CloudWatchAggregation.prototype.push = function(name, dimensions, value, options
 
 CloudWatchAggregation.prototype.flush = function() {
   var metrics = [];
-
+  var currentBatch;
   var metricName;
+  var batchCount = this.options.batchCount;
+
   for (metricName in this._aggregations) {
     metrics = metrics.concat(this._aggregations[metricName].values());
   }
 
-  if (metrics.length < 1) {
-    return;
-  }
-
   this._aggregations = {};
 
-  this._cloudWatch.putMetricData({
-    Namespace: this.options.namespace || '',
-    MetricData: metrics
-  }, function(err, data) {
+  while (metrics.length > 0) {
+    currentBatch = metrics.splice(0, batchCount);
+
+    this._cloudWatch.putMetricData({
+      Namespace: this.options.namespace || '',
+      MetricData: currentBatch
+    }, errorLogger);
+  }
+
+  function errorLogger(err, data) {
     if (err) {
       throw err;
     }
-  });
+  }
 };
 
 CloudWatchAggregation.prototype.start = function(interval) {
